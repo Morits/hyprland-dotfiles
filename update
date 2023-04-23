@@ -2,7 +2,9 @@
 # Shell
 sudo pacman --noconfirm -S zsh
 chsh -s $(which zsh)
-sudo pacman --noconfirm -S noto-fonts noto-fonts-emoji ttf-firacode-nerd htop ranger curl man
+sudo pacman --noconfirm -S noto-fonts noto-fonts-emoji ttf-firacode-nerd htop ranger curl man ufw
+sudo systemctl enable ufw
+sudo ufw default deny
 
 # Hyprland
 sudo pacman --noconfirm -S pipewire pipewire-pulse pipewire-jack hyprland kitty swaybg brightnessctl pamixer mpv swaylock veracrypt
