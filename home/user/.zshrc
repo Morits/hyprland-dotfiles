@@ -19,6 +19,7 @@ alias autoclean='sudo pacman -Qtdq | sudo pacman -Rns -'
 alias b='bat'
 alias rr='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
 alias z='zathura'
+alias yt-dlp="yt-dlp -f 'bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/mp4'"
 
 # System aliases
 #alias standby='xset dpms force standby' 
