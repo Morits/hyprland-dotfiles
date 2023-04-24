@@ -7,7 +7,7 @@ sudo systemctl enable ufw
 sudo ufw default deny
 
 # Hyprland
-sudo pacman --noconfirm -S pipewire pipewire-pulse pipewire-jack hyprland kitty swaybg brightnessctl pamixer mpv swaylock veracrypt
+sudo pacman --noconfirm -S pipewire pipewire-pulse pipewire-jack hyprland kitty swaybg brightnessctl pamixer python-pillow mpv swaylock veracrypt
 sudo pacman --noconfirm -S chromium yt-dlp
 sudo sed -i "s/Exec=\/usr\/bin\/chromium/Exec=\/usr\/bin\/chromium --enable-features=UseOzonePlatform --ozone-platform=wayland/g" /usr/share/applications/chromium.desktop
 sudo pacman --noconfirm -S greetd greetd-tuigreet
