@@ -7,6 +7,7 @@ case $(wofi -d -L 6 -l 3 -W 100 -x -100 -y 10 \
     Reboot
     Log off
     Sleep
+    Hibernate
     Lock
     Cancel
 EOF
@@ -18,6 +19,7 @@ EOF
         systemctl reboot
         ;;
     "Sleep")
+	swaylock
         systemctl suspend
         ;;
     "Lock")
@@ -26,4 +28,8 @@ EOF
     "Log off")
         hyprctl dispatch exit
         ;;
+    "Hibernate")
+	swaylock
+	systemctl hibernate
+	;;
 esac
