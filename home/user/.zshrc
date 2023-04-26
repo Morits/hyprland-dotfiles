@@ -4,6 +4,8 @@ alias ..='cd ..'
 alias l='ls -lah --color=auto'
 alias t='tree'
 alias rm='rm -v'
+alias cp='cp -v'
+alias mv='mv -v'
 alias open='xdg-open'
 
 alias gs='git status'
