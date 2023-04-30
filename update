@@ -6,9 +6,14 @@ sudo pacman --noconfirm -S noto-fonts noto-fonts-emoji ttf-firacode-nerd htop ra
 # usbutils
 sudo systemctl enable ufw
 sudo ufw default deny
+# uninstall dhcpcd if it was installed by mistake
+sudo pacman -R dhcpcd
 
 # Hyprland
-sudo pacman --noconfirm -S pipewire pipewire-pulse pipewire-jack hyprland kitty swaybg brightnessctl pamixer python-pillow mpv swaylock veracrypt ffmpegthumbnailer jq imagemagick mediainfo
+sudo pacman --noconfirm -S pipewire pipewire-pulse pipewire-jack hyprland kitty swaybg brightnessctl pamixer python-pillow mpv swaylock veracrypt ffmpegthumbnailer jq imagemagick mediainfo docker
+sudo systemctl enable docker.service
+sudo usermod -a -G docker coffee
+
 # fprintd
 sudo pacman --noconfirm -S adobe-source-han-sans-cn-fonts adobe-source-han-sans-jp-fonts adobe-source-han-sans-kr-fonts adobe-source-han-sans-otc-fonts adobe-source-han-sans-tw-fonts
 sudo pacman --noconfirm -S chromium yt-dlp

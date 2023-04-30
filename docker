@@ -1,0 +1,30 @@
+#!/bin/sh
+sudo mkdir -p ~/.docker/elastic/data
+docker network create skynet
+docker create --restart unless-stopped -v ~/.docker/elastic/data:/usr/share/elasticsearch/data --name elastic --net skynet -p 127.0.0.1:9200:9200 -p 127.0.0.1:9300:9300 --env "discovery.type=single-node" --env "ES_JAVA_OPTS=-Xms1024m -Xmx1024m" --env "xpack.security.enabled=true" --env "xpack.security.enrollment.enabled=true" --memory 2GB elasticsearch:8.7.0
+
+docker run --rm \
+	--net skynet \
+	docker.elastic.co/beats/metricbeat:8.7.0 \
+	setup -E setup.kibana.host=kibana:5601 \
+	-E output.elasticsearch.hosts='["elastic:9200"]'
+
+docker create \
+	--restart unless-stopped \
+        --name metrics \
+        --user=root \
+        --mount type=bind,source=/proc,target=/hostfs/proc,readonly \
+        --mount type=bind,source=/sys/fs/cgroup,target=/hostfs/sys/fs/cgroup,readonly \
+        --mount type=bind,source=/,target=/hostfs,readonly \
+        --volume="$HOME/.docker/metricbeat/metricbeat.docker.yml:/usr/share/metricbeat/metricbeat.yml:ro" \
+        --volume="/var/run/docker.sock:/var/run/docker.sock:ro" \
+        --net=host \
+        docker.elastic.co/beats/metricbeat:8.7.0 \
+        metricbeat -e \
+        -e -system.hostfs=/hostfs \
+        -E output.elasticsearch.hosts='["localhost:9200"]'
+
+docker create --restart unless-stopped --name kibana --net skynet -p 127.0.0.1:5601:5601 docker.elastic.co/kibana/kibana:8.7.0
+
+
+

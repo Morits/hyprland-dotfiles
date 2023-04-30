@@ -107,7 +107,7 @@
 
     "network": {
         "interface": "wlp0s20f3", // (Optional) To force the use of this interface
-        "format-wifi": "  {signalStrength}% | {bandwidthUpBytes}",
+        "format-wifi": "  {signalStrength}% | {bandwidthDownBytes} | {bandwidthUpBytes}",
         "format-ethernet": "{ipaddr}/{cidr} ",
         "tooltip-format": "{essid} - {ifname} via {gwaddr} ",
         "format-linked": "{ifname} (No IP) ",
