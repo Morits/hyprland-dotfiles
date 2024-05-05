@@ -1,0 +1,6 @@
+#!/bin/sh
+
+wifiName=`nmcli -t -f active,ssid dev wifi | grep -E '^yes' | awk -F : '{print $2}'`
+nmcli con mod "$wifiName" ipv4.ignore-auto-dns yes
+nmcli con mod "$wifiName" ipv4.dns "8.8.8.8 8.8.4.4"
+sudo systemctl restart NetworkManager

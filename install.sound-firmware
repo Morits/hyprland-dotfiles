@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# Sound firmware. if pulsemixer only shows dummy output, install this
+sudo pacman -S sof-firmware

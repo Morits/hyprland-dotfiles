@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# Firewall
+sudo systemctl enable ufw
+sudo ufw default deny
+
+iwif=`cat /proc/net/wireless | tail -n +3 | awk -F : {print $1}`
+if [ -n "$iwif" ]; then
+  sed -i 's/wlp0s20f3/$iwif/g' ./home/user/.config/waybar/config.jsonc
+fi
+
+# Hard link all dotfiles
+IFS=$'\n'; set -f
+for f in $(find ./home/user); do
+	fileName="${f/.\/home\/user/}"
+	if [[ -d $f ]]; then
+		if [ -z "$fileName" ]; then
+			continue
+		fi
+
+		echo "mkdir ~$fileName"
+		mkdir "${HOME}$fileName"
+	elif [[ -f $f ]]; then
+		echo "ln $f ${HOME}$fileName"
+		ln "$f" "${HOME}$fileName"
+	fi
+done
+unset IFS; set +f

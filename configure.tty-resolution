@@ -1,0 +1,4 @@
+#!/bin/sh
+
+pacman --noconfirm -S terminus-font
+sed -Ei 's/^FONT=.*$/FONT=ter-132n/g'

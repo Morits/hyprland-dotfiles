@@ -1,0 +1,162 @@
+#!/bin/sh
+
+# parameter parsing from https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
+POSITIONAL_ARGS=()
+
+hostname=""
+username=""
+password=""
+disk=""
+
+showUsage() {
+  echo "Usage --hostname value --username value --password value --disk value"
+  exit 0
+}
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -h|--hostname)
+      hostname="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    -u|--username)
+      username="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    -p|--password)
+      password="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    -d|--disk)
+      disk="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    -?|--help)
+      showUsage
+      ;;
+    -*|--*)
+      echo "Unknown option $1"
+      exit 1
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$1") # save positional arg
+      shift # past argument
+      ;;
+  esac
+done
+
+if [ -z "$hostname" ]; then
+  showUsage
+fi
+
+if [ -z "$username" ]; then
+  showUsage
+fi
+
+if [ -z "$password" ]; then
+  showUsage
+fi
+
+if [ -z "$disk" ]; then
+  showUsage
+fi
+
+set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
+
+# fdisk script from https://superuser.com/questions/332252/how-to-create-and-format-a-partition-using-a-bash-script
+TGTDEV=$disk
+# Partitioning the entire disk
+# to create the partitions programatically (rather than manually)
+# we're going to simulate the manual input to fdisk
+# The sed script strips off all the comments so that we can
+# document what we're doing in-line with the actual commands
+# Note that a blank line (commented as "defualt" will send a empty
+# line terminated with a newline to take the fdisk default.
+sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk ${TGTDEV}
+  g # Create new gpt
+  n # New Partition
+    # default - next partition number
+    # default - First sector
+  +512M # 512Mb uefi boot partition
+  t # type
+  uefi # uefi boot partition
+  n # new partition
+    # default - Next partition number
+    # default - First sector
+  +2GB # 2 GB swap partition
+  t # type
+  swap # swap partition
+  n # new partition
+    # default - partition number
+    # default - first sector
+    # default - last sector
+  t # type
+  linux # linux file system
+  p # print the in-memory partition table
+  w # write the partition table
+  q # and we're done
+EOF
+
+# Create file systems
+mkfs.ext4 /dev/${TGTDEV}p3
+mkswap /dev/${TGTDEV}p2
+mkfs.fat -F 32 /dev/${TGTDEV}p1
+
+# Mount file systems
+mount /dev/${TGTDEV}p3 /mnt
+mount --mkdir /dev/${TGTDEV} /mnt/boot
+swapon /dev/${TGTDEV}p2
+
+# Install base system
+pacstrap -K /mnt \
+  base \
+  base-devel \
+  linux \
+  linux-firmware \
+  e2fsprogs \
+  networkmanager \
+  vim \
+  man-db \
+  man-pages \
+  texinfo
+
+genfstab -U /mnt >> /mnt/etc/fstab
+arch-chroot /mnt /bin/bash <<EOF
+   # Commands to run in the chroot environment
+   ln -sf /usr/share/zoneinfo/Europe/Oslo /etc/localtime
+   hwclock --systohc
+
+   # Locale
+   sed -i 's/#nb_NO.UTF-8 UTF-8/nb_NO.UTF-8 UTF-8/g' /etc/locale.gen
+   sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
+   locale-gen
+   echo "LANG=en_US.UTF-8" > /etc/locale.conf
+
+   echo "KEYMAP=no-latin1" >> /etc/vconsole.conf
+   echo "FONT=Lat2-Terminus16" >> /etc/vconsole.conf
+
+   echo "$hostname" > /etc/hostname
+
+   echo "127.0.0.1	localhost" >> /etc/hosts
+   echo "::1	localhost" >> /etc/hosts
+   echo "127.0.1.1	$hostname" >> /etc/hosts
+
+   mkinitcpio -P
+   pacman --noconfirm -S grub efibootmgr neofetch sudo git zsh
+   sed -i 's/^#\s*\(%wheel\s\+ALL=(ALL:ALL)\s\+ALL\)/\1/' /etc/sudoers
+   useradd -m -g users -G wheel,storage,power,audio $username
+   echo "$username:$password" | chpasswd
+   usermod --shell $(which zsh) tecmint
+
+   grub-install --efi-directory=/boot --bootloader-id=GRUB
+   grub-mkconfig -o /boot/grub/grub.cfg
+
+   passwd -l root
+EOF
+
+umount -R /mnt
+echo "Now just reboot"
