@@ -145,6 +145,8 @@ arch-chroot /mnt /bin/bash <<EOF
    echo "::1	localhost" >> /etc/hosts
    echo "127.0.1.1	$hostname" >> /etc/hosts
 
+   sed -i 's/#Color/Color\nILoveCandy/g' /etc/pacman.conf
+   
    mkinitcpio -P
    pacman --noconfirm -S grub efibootmgr neofetch sudo git zsh
    sed -i 's/^#\s*\(%wheel\s\+ALL=(ALL:ALL)\s\+ALL\)/\1/' /etc/sudoers
