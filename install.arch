@@ -82,23 +82,26 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk ${TGTDEV}
     # default - next partition number
     # default - First sector
   +512M # 512Mb uefi boot partition
+  y # Do you want to remove the signature
   t # type
   uefi # uefi boot partition
   n # new partition
     # default - Next partition number
     # default - First sector
   +2GB # 2 GB swap partition
+  y # Do you want to remove the signature
   t # type
+    # default - partition number
   swap # swap partition
   n # new partition
     # default - partition number
     # default - first sector
     # default - last sector
   t # type
+    # default - Partition number
   linux # linux file system
   p # print the in-memory partition table
   w # write the partition table
-  q # and we're done
 EOF
 
 # Create file systems
@@ -146,7 +149,7 @@ arch-chroot /mnt /bin/bash <<EOF
    echo "127.0.1.1	$hostname" >> /etc/hosts
 
    sed -i 's/#Color/Color\nILoveCandy/g' /etc/pacman.conf
-   
+
    mkinitcpio -P
    pacman --noconfirm -S grub efibootmgr neofetch sudo git zsh
    sed -i 's/^#\s*\(%wheel\s\+ALL=(ALL:ALL)\s\+ALL\)/\1/' /etc/sudoers
