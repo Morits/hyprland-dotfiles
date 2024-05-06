@@ -82,14 +82,12 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk ${TGTDEV}
     # default - next partition number
     # default - First sector
   +512M # 512Mb uefi boot partition
-  y # Do you want to remove the signature
   t # type
   uefi # uefi boot partition
   n # new partition
     # default - Next partition number
     # default - First sector
   +2GB # 2 GB swap partition
-  y # Do you want to remove the signature
   t # type
     # default - partition number
   swap # swap partition
@@ -105,14 +103,14 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk ${TGTDEV}
 EOF
 
 # Create file systems
-mkfs.ext4 /dev/${TGTDEV}p3
-mkswap /dev/${TGTDEV}p2
-mkfs.fat -F 32 /dev/${TGTDEV}p1
+mkfs.ext4 -F ${TGTDEV}p3
+mkswap ${TGTDEV}p2
+mkfs.fat -F 32 ${TGTDEV}p1
 
 # Mount file systems
-mount /dev/${TGTDEV}p3 /mnt
-mount --mkdir /dev/${TGTDEV} /mnt/boot
-swapon /dev/${TGTDEV}p2
+mount ${TGTDEV}p3 /mnt
+mount --mkdir ${TGTDEV}p1 /mnt/boot
+swapon ${TGTDEV}p2
 
 # Install base system
 pacstrap -K /mnt \
