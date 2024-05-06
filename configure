@@ -4,9 +4,9 @@
 sudo systemctl enable ufw
 sudo ufw default deny
 
-iwif=`cat /proc/net/wireless | tail -n +3 | awk -F : {print $1}`
+iwif=`cat /proc/net/wireless | tail -n +3 | awk -F : '{print $1}'`
 if [ -n "$iwif" ]; then
-  sed -i 's/wlp0s20f3/$iwif/g' ./home/user/.config/waybar/config.jsonc
+  sed -i 's/wlp0s20f3/'"$iwif"'/g' ./home/user/.config/waybar/config.jsonc
 fi
 
 # Hard link all dotfiles
@@ -18,11 +18,11 @@ for f in $(find ./home/user); do
 			continue
 		fi
 
-		echo "mkdir ~$fileName"
+		echo "mkdir ${HOME}$fileName"
 		mkdir "${HOME}$fileName"
 	elif [[ -f $f ]]; then
-		echo "ln $f ${HOME}$fileName"
-		ln "$f" "${HOME}$fileName"
+		echo "ln -f $f ${HOME}$fileName"
+		ln -f "$f" "${HOME}$fileName"
 	fi
 done
 unset IFS; set +f

@@ -11,8 +11,8 @@ if [[ -z $hasResume ]]; then
 	swapId=`cat /etc/fstab | grep -i swap | awk '{print $1}'`
 	if [[ ! -z $swapId ]]; then
 		currentLine=`sudo cat /etc/default/grub | grep -i GRUB_CMDLINE_LINUX_DEFAULT`
-		newLine=`echo $currentLine | sed 's/"$/resume='$swapId'"/g'`
-		sudo sed -i 's/$currentLine/$newLine/g' /etc/default/grub
+		newLine=`echo $currentLine | sed 's/"$/ resume='$swapId'"/g'`
+		sudo sed -i 's/'"$currentLine"'/'"$newLine"'/g' /etc/default/grub
 		sudo grub-mkconfig -o /boot/grub/grub.cfg
 	fi
 fi
